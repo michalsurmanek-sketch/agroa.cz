@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil firmy | Agroa.cz</title>
+  <meta name="description" content="Profil firmy v katalogu Agroa.cz. Kontakt, služby, regiony působnosti a poptávka." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://agroa.cz/firma/" />
+  <meta name="theme-color" content="#166534" />
+
+  <!-- Dark mode: bez bliknutí -->
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDark = saved ? saved === 'dark' : prefersDark;
+        if (useDark) document.documentElement.classList.add('dark');
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Google Fonts (CZ) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Roboto', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            agro: {
+              green: '#166534',
+              light: '#eaf7ee',
+              dark: '#0b3a1e',
+              accent: '#8BC34A'
+            }
+          },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,.08)' }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+
+  <!-- JSON-LD (doplní se dynamicky) -->
+  <script id="jsonld" type="application/ld+json">{}</script>
+
+  <!-- Supabase JS (napojení na data) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="font-sans text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-white dark:focus:bg-slate-900 focus:shadow-soft focus:border focus:border-slate-200 dark:focus:border-slate-800">Přeskočit na obsah</a>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <!-- Logo -->
+          <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Agroa logo" role="img">
+            <defs>
+              <linearGradient id="agroGradient" x1="6" y1="8" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#166534"/>
+                <stop offset="1" stop-color="#0b3a1e"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#agroGradient)"/>
+            <path d="M14 40H50" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M18 44c6-3 10-4 14-4s8 1 14 4" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M20 50c5-2.5 8-3.2 12-3.2s7 .7 12 3.2" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M32 18c-4.8 0-8.6 3.4-9.6 8.2 5.5.8 9.7-1.1 9.6-8.2Z" fill="#8BC34A"/>
+            <path d="M32 18c4.8 0 8.6 3.4 9.6 8.2-5.5.8-9.7-1.1-9.6-8.2Z" fill="#B7F36A" opacity=".95"/>
+            <path d="M32 26v12" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="leading-tight">
+            <div class="font-black text-lg tracking-tight">Agroa.cz</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 -mt-0.5">Profil firmy</div>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-4 font-medium">
+          <a href="/katalog/" class="hover:text-agro-green">Katalog</a>
+          <a href="/#inzerce" class="hover:text-agro-green">Inzerce</a>
+          <a href="/#dotace" class="hover:text-agro-green">Dotace</a>
+          <a href="/#magazin" class="hover:text-agro-green">Magazín</a>
+          <a href="/#kontakt" class="hover:text-agro-green">Kontakt</a>
+
+          <button id="themeToggle" type="button" class="ml-2 inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSun" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoon" aria-hidden="true">🌙</span>
+          </button>
+
+          <a href="#poptat" class="ml-2 px-4 py-2 rounded-xl bg-agro-green text-white hover:bg-agro-dark transition shadow-soft">Poptat firmu</a>
+        </nav>
+
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Otevřít menu" aria-expanded="false">
+          <svg id="menuIconOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          <svg id="menuIconClose" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile panel -->
+    <div id="mobilePanel" class="md:hidden fixed inset-0 z-40 bg-black/40 opacity-0 pointer-events-none transition-opacity">
+      <div class="absolute right-0 top-0 h-full w-80 max-w-[85%] bg-white dark:bg-slate-950 shadow-2xl translate-x-full transition-transform p-6 flex flex-col gap-4 border-l border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between -mt-1">
+          <div class="text-sm font-bold">Menu</div>
+          <button id="themeToggleMobileIcon" type="button" class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSunM" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoonM" aria-hidden="true">🌙</span>
+          </button>
+        </div>
+        <a href="/katalog/" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📚 Katalog</a>
+        <a href="#sluzby" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>🤝 Služby</a>
+        <a href="#galerie" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>🖼️ Galerie</a>
+        <a href="#kontakt" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📨 Kontakt</a>
+        <a href="#poptat" class="mt-2 inline-flex items-center justify-center px-4 py-3 rounded-xl bg-agro-green text-white hover:bg-agro-dark" data-close>Poptat firmu</a>
+
+        <button id="themeToggleMobile" type="button" class="mt-auto inline-flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+          <span class="font-medium">Režim</span>
+          <span id="themeLabel" class="text-sm text-slate-600 dark:text-slate-300">Světlý</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Breadcrumb -->
+    <section class="bg-agro-light/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-sm text-slate-600 dark:text-slate-300">
+          <a href="/" class="hover:text-agro-green">Agroa.cz</a>
+          <span class="mx-2">/</span>
+          <a href="/katalog/" class="hover:text-agro-green">Katalog</a>
+          <span class="mx-2">/</span>
+          <span id="crumbName" class="text-slate-900 dark:text-slate-100">Firma</span>
+        </div>
+
+        <div class="mt-4 grid lg:grid-cols-12 gap-6 items-start">
+          <!-- Left: identity -->
+          <div class="lg:col-span-8">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 grid place-items-center shadow-soft">
+                <span id="firmIcon" class="text-2xl">🏷️</span>
+              </div>
+              <div>
+                <h1 id="firmName" class="text-3xl sm:text-4xl font-black tracking-tight">Načítám…</h1>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                  <span id="firmVerified" class="hidden px-2 py-1 rounded-lg bg-agro-green/10 text-agro-green font-medium">Ověřeno</span>
+                  <span id="firmRating" class="hidden px-2 py-1 rounded-lg bg-white/70 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">★ 0.0</span>
+                  <span id="firmLocation" class="text-slate-600 dark:text-slate-300">—</span>
+                </div>
+                <p id="firmAbout" class="mt-3 text-slate-700 dark:text-slate-200">—</p>
+              </div>
+            </div>
+
+            <div id="firmTags" class="mt-6 flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Right: quick contact -->
+          <div class="lg:col-span-4">
+            <div id="kontakt" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-soft">
+              <div class="font-bold text-lg">Rychlý kontakt</div>
+              <div class="mt-3 space-y-2 text-slate-700 dark:text-slate-200">
+                <div id="rowEmail">✉️ <a id="firmEmail" class="hover:text-agro-green" href="#">—</a></div>
+                <div id="rowPhone">📞 <a id="firmPhone" class="hover:text-agro-green" href="#">—</a></div>
+                <div id="rowWeb">🌐 <a id="firmWeb" class="hover:text-agro-green" href="#" rel="noopener">—</a></div>
+              </div>
+              <a href="#poptat" class="mt-5 inline-flex items-center justify-center w-full px-4 py-3 rounded-xl bg-agro-green text-white hover:bg-agro-dark">Poptat firmu</a>
+              <a href="/katalog/" class="mt-3 inline-flex items-center justify-center w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green">Zpět do katalogu</a>
+              <div id="loadNote" class="mt-4 text-xs text-slate-500 dark:text-slate-400"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <section class="py-12">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-8">
+
+        <!-- Main -->
+        <div class="lg:col-span-8 space-y-8">
+          <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <h2 class="text-xl font-black">O firmě</h2>
+            <p id="aboutLong" class="mt-3 text-slate-700 dark:text-slate-200">—</p>
+            <div id="facts" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <div id="sluzby" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <h2 class="text-xl font-black">Služby</h2>
+            <div id="services" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <div id="galerie" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <h2 class="text-xl font-black">Galerie</h2>
+            <div id="gallery" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <div id="poptat" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-soft">
+            <h2 class="text-xl font-black">Poptat firmu</h2>
+            <p class="mt-2 text-slate-600 dark:text-slate-300">Napiš krátce, co potřebuješ. Poptávka se uloží do databáze (Supabase).</p>
+
+            <form id="leadForm" class="mt-6 space-y-4">
+              <input type="hidden" id="firmId" value="" />
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium">Jméno</label>
+                  <input id="leadName" required class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="Jan Novák" />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">E-mail</label>
+                  <input id="leadEmail" type="email" required class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="jan@farma.cz" />
+                </div>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium">Telefon</label>
+                  <input id="leadPhone" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="+420 777 000 000" />
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Téma</label>
+                  <select id="leadTopic" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+                    <option>Servis</option>
+                    <option>Nákup stroje</option>
+                    <option>Náhradní díly</option>
+                    <option>Jiné</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-medium">Zpráva</label>
+                <textarea id="leadMessage" rows="5" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="Popiš, co potřebuješ…"></textarea>
+              </div>
+              <button id="leadBtn" class="px-5 py-3 rounded-xl bg-agro-green text-white hover:bg-agro-dark shadow-soft" type="submit">Odeslat poptávku</button>
+              <div id="leadStatus" class="text-sm text-slate-600 dark:text-slate-300"></div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="lg:col-span-4 space-y-6">
+          <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <div class="font-bold">Oblasti působnosti</div>
+            <div id="areas" class="mt-3 flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <div class="font-bold">Mapa</div>
+            <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 aspect-[16/10] grid place-items-center text-sm text-slate-600 dark:text-slate-300">
+              (mapa – později Mapy.cz / Mapbox)
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <div class="font-bold">Podobné firmy</div>
+            <div id="similar" class="mt-3 space-y-3 text-sm"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- CTA banner -->
+    <section class="py-10 bg-gradient-to-r from-agro-green to-agro-dark text-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-lg font-medium">Chceš být v katalogu taky? Získej profil firmy a poptávky.</div>
+        <a href="/#poptavka" class="px-5 py-3 rounded-xl bg-white text-agro-dark font-semibold hover:bg-agro-light">Přidat firmu</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-10 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="text-sm text-slate-600 dark:text-slate-300">© <span id="year"></span> Agroa.cz</div>
+      <div class="text-sm">
+        <a href="/obchodni-podminky/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Podmínky</a>
+        <span class="mx-2 text-slate-400">•</span>
+        <a href="/ochrana-osobnich-udaju/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Soukromí</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Dark mode
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const toggleMobile = document.getElementById('themeToggleMobile');
+    const toggleMobileIcon = document.getElementById('themeToggleMobileIcon');
+    const iconSun = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+    const iconSunM = document.getElementById('iconSunM');
+    const iconMoonM = document.getElementById('iconMoonM');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function setTheme(mode){
+      const isDark = mode === 'dark';
+      root.classList.toggle('dark', isDark);
+      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch(e) {}
+      if (iconSun && iconMoon) {
+        iconSun.classList.toggle('hidden', !isDark);
+        iconMoon.classList.toggle('hidden', isDark);
+      }
+      if (iconSunM && iconMoonM) {
+        iconSunM.classList.toggle('hidden', !isDark);
+        iconMoonM.classList.toggle('hidden', isDark);
+      }
+      if (themeLabel) themeLabel.textContent = isDark ? 'Tmavý' : 'Světlý';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isDark ? '#0b3a1e' : '#166534');
+    }
+
+    const savedTheme = (() => { try { return localStorage.getItem('theme'); } catch(e) { return null; } })();
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light'));
+
+    function toggleTheme(){ setTheme(root.classList.contains('dark') ? 'light' : 'dark'); }
+    if (toggle) toggle.addEventListener('click', toggleTheme);
+    if (toggleMobile) toggleMobile.addEventListener('click', toggleTheme);
+    if (toggleMobileIcon) toggleMobileIcon.addEventListener('click', toggleTheme);
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const mobilePanel = document.getElementById('mobilePanel');
+    const drawer = mobilePanel.querySelector('div');
+    const iconOpen = document.getElementById('menuIconOpen');
+    const iconClose = document.getElementById('menuIconClose');
+
+    function openMenu() {
+      mobilePanel.classList.remove('pointer-events-none', 'opacity-0');
+      drawer.classList.remove('translate-x-full');
+      iconOpen.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      mobilePanel.classList.add('opacity-0');
+      drawer.classList.add('translate-x-full');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      setTimeout(()=> mobilePanel.classList.add('pointer-events-none'), 300);
+    }
+
+    menuBtn.addEventListener('click', () => {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      if (expanded) closeMenu(); else {
+        mobilePanel.classList.remove('opacity-0');
+        mobilePanel.classList.remove('pointer-events-none');
+        setTimeout(openMenu, 10);
+      }
+    });
+
+    mobilePanel.addEventListener('click', (e) => { if (e.target === mobilePanel) closeMenu(); });
+    mobilePanel.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
+    window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+
+    // Supabase (VARIANTA A: /firma/?slug=...)
+    const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE';
+    const SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY_HERE';
+
+    const hasSupabase = SUPABASE_URL.indexOf('http') === 0 && SUPABASE_ANON_KEY.indexOf('ey') === 0;
+    const sb = hasSupabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    const DEMO = {
+      id: 1,
+      slug: 'agroservis-morava',
+      name: 'AgroServis Morava',
+      about: 'Servis a prodej zemědělské techniky, rychlé výjezdy, originální díly.',
+      about_long: 'Jsme servisní a prodejní partner pro zemědělskou techniku. Umíme rychlé výjezdy, diagnostiku, originální díly a dlouhodobý servisní plán. Pracujeme pro malé farmy i větší agropodniky.',
+      kraj: 'Zlínský',
+      okres: 'Uherské Hradiště',
+      verified: true,
+      rating: 4.7,
+      icon: '🚜',
+      email: 'info@agroservis.cz',
+      phone: '+420 777 000 000',
+      website: 'https://www.agroservis.cz',
+      tags: ['Servis','Prodej','Montáž','Díly','Výjezdy'],
+      areas: ['Zlínský kraj','Jihomoravský kraj','Olomoucký kraj'],
+      facts: [
+        { label: 'Specializace', value: 'Traktory, secí stroje, mulčovače' },
+        { label: 'Dostupnost', value: 'Výjezdy do 24 hodin' }
+      ],
+      services: [
+        { title: 'Servis a opravy', desc: 'Diagnostika, opravy v dílně i v terénu.' },
+        { title: 'Prodej techniky', desc: 'Nové i použité stroje, doporučení podle potřeb.' },
+        { title: 'Montáž & příslušenství', desc: 'Přestavby, instalace, nastavení a záběh.' },
+        { title: 'Náhradní díly', desc: 'Originální i kompatibilní díly, rychlé dodání.' }
+      ],
+      gallery: [
+        'https://images.unsplash.com/photo-1619024200796-3c4b8d4288e8?q=80&w=1200&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1561557944-2f8a5f7f5b9a?q=80&w=1200&auto=format&fit=crop'
+      ],
+      similar: [
+        { name: 'HydroAgro Tech', slug: 'hydroagro-tech' },
+        { name: 'AgroLeasing Partner', slug: 'agroleasing-partner' }
+      ]
+    };
+
+    function getSlug(){
+      const p = new URLSearchParams(location.search);
+      return (p.get('slug') || 'agroservis-morava').trim();
+    }
+
+    function setMetaForFirm(f){
+      document.title = f.name + ' – Profil firmy | Agroa.cz';
+
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', f.about || 'Profil firmy v katalogu Agroa.cz.');
+
+      const canonicalUrl = 'https://agroa.cz/firma/?slug=' + encodeURIComponent(f.slug);
+      const canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) canonical.setAttribute('href', canonicalUrl);
+
+      const json = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": f.name,
+        "url": canonicalUrl,
+        "areaServed": "CZ",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": (f.kraj || ''),
+          "addressLocality": (f.okres || ''),
+          "addressCountry": "CZ"
+        }
+      };
+      const jsonEl = document.getElementById('jsonld');
+      if (jsonEl) jsonEl.textContent = JSON.stringify(json);
+    }
+
+    function setText(id, value){
+      const el = document.getElementById(id);
+      if (el) el.textContent = value == null ? '' : value;
+    }
+
+    function setLink(id, href, label){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = label || href || '—';
+      el.setAttribute('href', href || '#');
+    }
+
+    function stripProtocol(url){
+      if (!url) return '';
+      return url.replace('https://','').replace('http://','');
+    }
+
+    function phoneToTel(phone){
+      if (!phone) return '';
+      return phone
+        .replaceAll(' ', '')
+        .replaceAll('-', '')
+        .replaceAll('(', '')
+        .replaceAll(')', '');
+    }
+
+    function renderFirm(f){
+      setText('crumbName', f.name);
+      setText('firmName', f.name);
+      setText('firmAbout', f.about || '—');
+      setText('aboutLong', f.about_long || f.about || '—');
+
+      const iconEl = document.getElementById('firmIcon');
+      if (iconEl) iconEl.textContent = f.icon || '🏷️';
+
+      const loc = [f.okres, f.kraj].filter(Boolean).join(' • ');
+      setText('firmLocation', loc || '—');
+
+      const v = document.getElementById('firmVerified');
+      if (v) v.classList.toggle('hidden', !f.verified);
+
+      const r = document.getElementById('firmRating');
+      if (r) {
+        const has = typeof f.rating === 'number' && !Number.isNaN(f.rating);
+        r.classList.toggle('hidden', !has);
+        if (has) r.textContent = '★ ' + f.rating.toFixed(1);
+      }
+
+      const tagsWrap = document.getElementById('firmTags');
+      if (tagsWrap) {
+        tagsWrap.innerHTML = (f.tags || []).map(t => '<span class="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800">' + t + '</span>').join('');
+      }
+
+      if (f.email) {
+        setLink('firmEmail', 'mailto:' + f.email, f.email);
+      } else {
+        const row = document.getElementById('rowEmail');
+        if (row) row.classList.add('hidden');
+      }
+
+      if (f.phone) {
+        setLink('firmPhone', 'tel:' + phoneToTel(f.phone), f.phone);
+      } else {
+        const row = document.getElementById('rowPhone');
+        if (row) row.classList.add('hidden');
+      }
+
+      if (f.website) {
+        setLink('firmWeb', f.website, stripProtocol(f.website));
+      } else {
+        const row = document.getElementById('rowWeb');
+        if (row) row.classList.add('hidden');
+      }
+
+      const facts = document.getElementById('facts');
+      if (facts) {
+        facts.innerHTML = (f.facts || []).slice(0,4).map(x =>
+          '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">'
+          + '<div class="text-xs text-slate-500 dark:text-slate-400">' + (x.label || '') + '</div>'
+          + '<div class="mt-1 font-bold">' + (x.value || '') + '</div>'
+          + '</div>'
+        ).join('');
+      }
+
+      const services = document.getElementById('services');
+      if (services) {
+        const html = (f.services || []).map(s =>
+          '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">'
+          + '<div class="font-bold">' + (s.title || '') + '</div>'
+          + '<div class="text-sm text-slate-600 dark:text-slate-300 mt-1">' + (s.desc || '') + '</div>'
+          + '</div>'
+        ).join('');
+        services.innerHTML = html || '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 text-sm text-slate-600 dark:text-slate-300">Zatím bez služeb.</div>';
+      }
+
+      const gallery = document.getElementById('gallery');
+      if (gallery) {
+        const html = (f.gallery || []).map(url =>
+          '<div class="relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">'
+          + '<div class="absolute inset-0 bg-[url(\'' + url + '\')] bg-cover bg-center"></div>'
+          + '<div class="absolute inset-0 hidden dark:block bg-black/25"></div>'
+          + '</div>'
+        ).join('');
+        gallery.innerHTML = html || '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 text-sm text-slate-600 dark:text-slate-300">Zatím bez fotek.</div>';
+      }
+
+      const areas = document.getElementById('areas');
+      if (areas) {
+        const html = (f.areas || []).map(a => '<span class="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800">' + a + '</span>').join('');
+        areas.innerHTML = html || '<span class="text-xs text-slate-600 dark:text-slate-300">Neuvedeno</span>';
+      }
+
+      const similar = document.getElementById('similar');
+      if (similar) {
+        const html = (f.similar || []).map(s =>
+          '<a class="block p-3 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-agro-green" href="/firma/?slug=' + encodeURIComponent(s.slug) + '">' + s.name + ' →</a>'
+        ).join('');
+        similar.innerHTML = html || '<div class="text-sm text-slate-600 dark:text-slate-300">Zatím bez doporučení.</div>';
+      }
+
+      const firmId = document.getElementById('firmId');
+      if (firmId) firmId.value = f.id || '';
+
+      setMetaForFirm(f);
+    }
+
+    async function loadFirmBySlug(slug){
+      if (!sb) {
+        const note = document.getElementById('loadNote');
+        if (note) note.textContent = 'Demo režim: doplň SUPABASE_URL a SUPABASE_ANON_KEY a bude to živé.';
+        const demo = Object.assign({}, DEMO);
+        demo.slug = slug;
+        return demo;
+      }
+
+      const res = await sb.from('firms').select('*').eq('slug', slug).maybeSingle();
+      if (res.error) throw res.error;
+      if (!res.data) return null;
+
+      const firm = res.data;
+      return {
+        id: firm.id,
+        slug: firm.slug,
+        name: firm.name,
+        about: firm.about,
+        about_long: firm.about_long,
+        kraj: firm.kraj,
+        okres: firm.okres,
+        verified: firm.verified,
+        rating: firm.rating,
+        icon: firm.icon,
+        email: firm.email,
+        phone: firm.phone,
+        website: firm.website,
+        tags: Array.isArray(firm.tags) ? firm.tags : (firm.tags || []),
+        areas: Array.isArray(firm.areas) ? firm.areas : (firm.areas || []),
+        facts: Array.isArray(firm.facts) ? firm.facts : (firm.facts || []),
+        services: Array.isArray(firm.services) ? firm.services : (firm.services || []),
+        gallery: Array.isArray(firm.gallery) ? firm.gallery : (firm.gallery || []),
+        similar: Array.isArray(firm.similar) ? firm.similar : (firm.similar || [])
+      };
+    }
+
+    async function submitLead(){
+      const status = document.getElementById('leadStatus');
+      const btn = document.getElementById('leadBtn');
+
+      const payload = {
+        firm_id: Number(document.getElementById('firmId').value) || null,
+        firm_slug: getSlug(),
+        name: document.getElementById('leadName').value.trim(),
+        email: document.getElementById('leadEmail').value.trim(),
+        phone: document.getElementById('leadPhone').value.trim(),
+        topic: document.getElementById('leadTopic').value,
+        message: document.getElementById('leadMessage').value.trim(),
+        created_at: new Date().toISOString()
+      };
+
+      if (!payload.name || !payload.email) {
+        if (status) status.textContent = 'Vyplň jméno a e-mail.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('opacity-60');
+      if (status) status.textContent = 'Odesílám…';
+
+      try {
+        if (!sb) {
+          if (status) status.textContent = 'Demo: poptávka se neuložila (Supabase není nastavený).';
+          return;
+        }
+        const ins = await sb.from('leads').insert(payload);
+        if (ins.error) throw ins.error;
+        if (status) status.textContent = 'Děkujeme! Poptávka byla odeslána.';
+        document.getElementById('leadForm').reset();
+      } catch (e) {
+        if (status) status.textContent = 'Nepodařilo se odeslat. Zkus to prosím znovu.';
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60');
+      }
+    }
+
+    (async function init(){
+      const slug = getSlug();
+      try {
+        const firm = await loadFirmBySlug(slug);
+        if (!firm) {
+          setText('firmName', 'Firma nenalezena');
+          setText('crumbName', 'Firma nenalezena');
+          setText('firmAbout', 'Zkontroluj slug v URL, např.: /firma/?slug=agroservis-morava');
+          const note = document.getElementById('loadNote');
+          if (note) note.textContent = 'Nic jsme nenašli pro slug: ' + slug;
+          return;
+        }
+        renderFirm(firm);
+      } catch (e) {
+        console.error(e);
+        setText('firmName', 'Chyba načítání');
+        setText('firmAbout', 'Nepodařilo se načíst data.');
+        const note = document.getElementById('loadNote');
+        if (note) note.textContent = 'Chyba: zkontroluj Supabase údaje a RLS pravidla.';
+      }
+
+      document.getElementById('leadForm').addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        submitLead();
+      });
+    })();
+  </script>
+</body>
+</html>

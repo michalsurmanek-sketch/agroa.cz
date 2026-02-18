@@ -51,6 +51,9 @@
   <style>
     html { scroll-behavior: smooth; }
   </style>
+
+  <!-- Supabase JS (pro automatické načítání katalogu) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="font-sans text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100">
   <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-white dark:focus:bg-slate-900 focus:shadow-soft focus:border focus:border-slate-200 dark:focus:border-slate-800">Přeskočit na obsah</a>
@@ -227,7 +230,10 @@
         <!-- Results (right) -->
         <div class="lg:col-span-8 xl:col-span-9">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="text-sm text-slate-600 dark:text-slate-300">Nalezeno: <span id="count" class="font-bold text-slate-900 dark:text-slate-100">0</span> firem</div>
+            <div>
+              <div class="text-sm text-slate-600 dark:text-slate-300">Nalezeno: <span id="count" class="font-bold text-slate-900 dark:text-slate-100">0</span> firem</div>
+              <div id="loadNote" class="mt-1 text-xs text-slate-500 dark:text-slate-400"></div>
+            </div>
             <div class="flex items-center gap-2">
               <label class="text-sm text-slate-600 dark:text-slate-300">Řazení</label>
               <select id="sort" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-agro-green/30">
@@ -362,8 +368,15 @@
     mobilePanel.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
     window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
 
-    // katalog data (MVP)
-    const FIRMS = [
+    // Supabase (automat) + DEMO fallback
+    // 1) Doplň svoje údaje ze Supabase (Project Settings → API)
+    const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE';
+    const SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY_HERE';
+    const hasSupabase = SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.startsWith('ey');
+    const sb = hasSupabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    // katalog data (DEMO)
+    const DEMO_FIRMS = [
       {
         id: 1,
         name: 'AgroServis Morava',
@@ -438,7 +451,11 @@
       }
     ];
 
+    // Aktuální data (defaultně DEMO, Supabase to může přepsat)
+    let FIRMS = DEMO_FIRMS.slice();
+
     const els = {
+      loadNote: document.getElementById('loadNote'),
       q: document.getElementById('q'),
       kraj: document.getElementById('kraj'),
       kat: document.getElementById('kat'),
@@ -517,7 +534,7 @@
       const tags = f.tags.slice(0,3).map(t => `<span class="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800">${tagMap[t]||t}</span>`).join('');
 
       return `
-        <a href="/firma/${f.slug}/" class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-soft transition">
+        <a href="/firma/?slug=${f.slug}" class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-soft transition">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="font-bold leading-snug group-hover:text-agro-green">${f.name}</div>
@@ -609,8 +626,55 @@
     els.prev.addEventListener('click', () => { if (page>1) { page--; render(); window.scrollTo({top:0, behavior:'smooth'}); } });
     els.next.addEventListener('click', () => { page++; render(); window.scrollTo({top:0, behavior:'smooth'}); });
 
+    async function loadFirmsFromSupabase(){
+      if (!sb) {
+        if (els.loadNote) els.loadNote.textContent = 'Demo režim: doplň SUPABASE_URL a SUPABASE_ANON_KEY a bude to živé.';
+        return null;
+      }
+
+      // očekává se tabulka: firms
+      // min sloupce: id, name, slug, kat(text[] nebo json), kraj, okres, verified, rating, tags(text[] nebo json), about
+      const res = await sb
+        .from('firms')
+        .select('id,name,slug,kat,kraj,okres,verified,rating,tags,about')
+        .order('verified', { ascending: false })
+        .order('rating', { ascending: false })
+        .limit(500);
+
+      if (res.error) throw res.error;
+      const rows = res.data || [];
+
+      // normalize polí, aby to sedělo na filtry
+      return rows.map(f => ({
+        id: f.id,
+        name: f.name,
+        slug: f.slug,
+        kat: Array.isArray(f.kat) ? f.kat : (f.kat ? [f.kat] : []),
+        kraj: f.kraj,
+        okres: f.okres,
+        verified: !!f.verified,
+        rating: typeof f.rating === 'number' ? f.rating : 0,
+        tags: Array.isArray(f.tags) ? f.tags : (f.tags ? [f.tags] : []),
+        about: f.about || ''
+      }));
+    }
+
     // init
-    render();
+    (async function init(){
+      try {
+        const live = await loadFirmsFromSupabase();
+        if (live && live.length) {
+          FIRMS = live;
+          if (els.loadNote) els.loadNote.textContent = 'Načteno ze Supabase (' + live.length + ' firem).';
+        } else {
+          // DEMO už je nastavené
+        }
+      } catch (e) {
+        console.error(e);
+        if (els.loadNote) els.loadNote.textContent = 'Chyba Supabase – zobrazuji demo data. (Zkontroluj RLS a klíče)';
+      }
+      render();
+    })();
   </script>
 </body>
 </html>

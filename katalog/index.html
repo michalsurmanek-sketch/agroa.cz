@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Katalog firem – Agroa.cz</title>
+  <meta name="description" content="Katalog firem a dodavatelů pro zemědělství. Filtry podle kraje, okresu, kategorie a služeb. Agroa.cz" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://agroa.cz/katalog/" />
+  <meta name="theme-color" content="#166534" />
+
+  <!-- Dark mode: bez bliknutí -->
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDark = saved ? saved === 'dark' : prefersDark;
+        if (useDark) document.documentElement.classList.add('dark');
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Google Fonts (CZ) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Roboto', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            agro: {
+              green: '#166534',
+              light: '#eaf7ee',
+              dark: '#0b3a1e',
+              accent: '#8BC34A'
+            }
+          },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,.08)' }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="font-sans text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-white dark:focus:bg-slate-900 focus:shadow-soft focus:border focus:border-slate-200 dark:focus:border-slate-800">Přeskočit na obsah</a>
+
+  <!-- Header (stejný styl jako homepage) -->
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Agroa logo" role="img">
+            <defs>
+              <linearGradient id="agroGradient" x1="6" y1="8" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#166534"/>
+                <stop offset="1" stop-color="#0b3a1e"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#agroGradient)"/>
+            <path d="M14 40H50" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M18 44c6-3 10-4 14-4s8 1 14 4" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M20 50c5-2.5 8-3.2 12-3.2s7 .7 12 3.2" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M32 18c-4.8 0-8.6 3.4-9.6 8.2 5.5.8 9.7-1.1 9.6-8.2Z" fill="#8BC34A"/>
+            <path d="M32 18c4.8 0 8.6 3.4 9.6 8.2-5.5.8-9.7-1.1-9.6-8.2Z" fill="#B7F36A" opacity=".95"/>
+            <path d="M32 26v12" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="leading-tight">
+            <div class="font-black text-lg tracking-tight">Agroa.cz</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 -mt-0.5">Katalog firem</div>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-4 font-medium">
+          <a href="/katalog/" class="text-agro-green">Katalog</a>
+          <a href="/#inzerce" class="hover:text-agro-green">Inzerce</a>
+          <a href="/#dotace" class="hover:text-agro-green">Dotace</a>
+          <a href="/#magazin" class="hover:text-agro-green">Magazín</a>
+          <a href="/#kontakt" class="hover:text-agro-green">Kontakt</a>
+
+          <button id="themeToggle" type="button" class="ml-2 inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSun" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoon" aria-hidden="true">🌙</span>
+          </button>
+
+          <a href="/#poptavka" class="ml-2 px-4 py-2 rounded-xl bg-agro-green text-white hover:bg-agro-dark transition shadow-soft">Nezávazná poptávka</a>
+        </nav>
+
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Otevřít menu" aria-expanded="false">
+          <svg id="menuIconOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+          <svg id="menuIconClose" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 6l12 12M6 18L18 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile panel -->
+    <div id="mobilePanel" class="md:hidden fixed inset-0 z-40 bg-black/40 opacity-0 pointer-events-none transition-opacity">
+      <div class="absolute right-0 top-0 h-full w-80 max-w-[85%] bg-white dark:bg-slate-950 shadow-2xl translate-x-full transition-transform p-6 flex flex-col gap-4 border-l border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between -mt-1">
+          <div class="text-sm font-bold">Menu</div>
+          <button id="themeToggleMobileIcon" type="button" class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSunM" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoonM" aria-hidden="true">🌙</span>
+          </button>
+        </div>
+
+        <a href="/katalog/" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📚 Katalog</a>
+        <a href="/#inzerce" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>🛠️ Inzerce</a>
+        <a href="/#dotace" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>💶 Dotace</a>
+        <a href="/#magazin" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📰 Magazín</a>
+        <a href="/#kontakt" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📨 Kontakt</a>
+
+        <a href="/#poptavka" class="mt-2 inline-flex items-center justify-center px-4 py-3 rounded-xl bg-agro-green text-white hover:bg-agro-dark" data-close>Nezávazná poptávka</a>
+
+        <button id="themeToggleMobile" type="button" class="mt-auto inline-flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+          <span class="font-medium">Režim</span>
+          <span id="themeLabel" class="text-sm text-slate-600 dark:text-slate-300">Světlý</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Breadcrumb + title -->
+    <section class="bg-agro-light/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-sm text-slate-600 dark:text-slate-300">
+          <a href="/" class="hover:text-agro-green">Agroa.cz</a> <span class="mx-2">/</span> <span class="text-slate-900 dark:text-slate-100">Katalog</span>
+        </div>
+        <h1 class="mt-2 text-3xl sm:text-4xl font-black tracking-tight">Katalog firem & dodavatelů</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-300">Vyhledej firmy podle regionu, kategorie a služeb. Kliknutím otevřeš profil firmy.</p>
+      </div>
+    </section>
+
+    <!-- Filters + results -->
+    <section class="py-10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-8">
+
+        <!-- Filters (left) -->
+        <aside class="lg:col-span-4 xl:col-span-3">
+          <div class="sticky top-20 space-y-4">
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-soft">
+              <div class="flex items-center justify-between gap-3">
+                <div class="font-bold">Filtry</div>
+                <button id="resetBtn" class="text-sm text-slate-600 dark:text-slate-300 hover:text-agro-green" type="button">Reset</button>
+              </div>
+
+              <div class="mt-4">
+                <label class="text-sm font-medium">Hledat</label>
+                <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Název firmy, služba…" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" />
+                <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">Tip: ESC vymaže hledání</div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-sm font-medium">Kraj</label>
+                  <select id="kraj" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+                    <option value="">Vše</option>
+                    <option>Zlínský</option>
+                    <option>Jihomoravský</option>
+                    <option>Olomoucký</option>
+                    <option>Moravskoslezský</option>
+                    <option>Vysočina</option>
+                    <option>Středočeský</option>
+                    <option>Jihočeský</option>
+                    <option>Plzeňský</option>
+                    <option>Karlovarský</option>
+                    <option>Ústecký</option>
+                    <option>Liberecký</option>
+                    <option>Královéhradecký</option>
+                    <option>Pardubický</option>
+                    <option>Praha</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm font-medium">Kategorie</label>
+                  <select id="kat" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+                    <option value="">Vše</option>
+                    <option value="osiva">Osiva & hnojiva</option>
+                    <option value="stroje">Stroje & technika</option>
+                    <option value="iot">Zavlažování & IoT</option>
+                    <option value="chov">Chov & veterinární</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <div class="text-sm font-medium">Služby</div>
+                <div class="mt-2 space-y-2 text-sm">
+                  <label class="flex items-center gap-2"><input class="svc" type="checkbox" value="servis" /> Servis</label>
+                  <label class="flex items-center gap-2"><input class="svc" type="checkbox" value="prodej" /> Prodej</label>
+                  <label class="flex items-center gap-2"><input class="svc" type="checkbox" value="leasing" /> Leasing</label>
+                  <label class="flex items-center gap-2"><input class="svc" type="checkbox" value="poradenstvi" /> Poradenství</label>
+                  <label class="flex items-center gap-2"><input class="svc" type="checkbox" value="montaz" /> Montáž</label>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <label class="flex items-center gap-2 text-sm">
+                  <input id="verified" type="checkbox" /> Pouze ověřené firmy
+                </label>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <div class="font-bold">Pro firmy</div>
+              <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Získej profil v katalogu, leady a přednostní zobrazení.</p>
+              <a href="/#poptavka" class="mt-3 inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl bg-agro-green text-white hover:bg-agro-dark">Přidat firmu</a>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Results (right) -->
+        <div class="lg:col-span-8 xl:col-span-9">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="text-sm text-slate-600 dark:text-slate-300">Nalezeno: <span id="count" class="font-bold text-slate-900 dark:text-slate-100">0</span> firem</div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-slate-600 dark:text-slate-300">Řazení</label>
+              <select id="sort" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+                <option value="relevance">Doporučené</option>
+                <option value="rating">Hodnocení</option>
+                <option value="name">Název A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="chips" class="mt-4 flex flex-wrap gap-2"></div>
+
+          <div id="list" class="mt-5 grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <!-- Firm cards injected -->
+          </div>
+
+          <div class="mt-8 flex items-center justify-between">
+            <button id="prev" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green" type="button">← Předchozí</button>
+            <div class="text-sm text-slate-600 dark:text-slate-300">Strana <span id="page" class="font-bold">1</span> / <span id="pages" class="font-bold">1</span></div>
+            <button id="next" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green" type="button">Další →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (zkrácený, konzistentní) -->
+  <footer class="py-10 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <svg class="w-9 h-9" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="agroGradientFooter" x1="6" y1="8" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#166534"/>
+              <stop offset="1" stop-color="#0b3a1e"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#agroGradientFooter)"/>
+          <path d="M14 40H50" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M18 44c6-3 10-4 14-4s8 1 14 4" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 50c5-2.5 8-3.2 12-3.2s7 .7 12 3.2" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 18c-4.8 0-8.6 3.4-9.6 8.2 5.5.8 9.7-1.1 9.6-8.2Z" fill="#8BC34A"/>
+          <path d="M32 18c4.8 0 8.6 3.4 9.6 8.2-5.5.8-9.7-1.1-9.6-8.2Z" fill="#B7F36A" opacity=".95"/>
+          <path d="M32 26v12" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div class="text-sm text-slate-600 dark:text-slate-300">© <span id="year"></span> Agroa.cz</div>
+      </div>
+      <div class="text-sm">
+        <a href="/obchodni-podminky/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Podmínky</a>
+        <span class="mx-2 text-slate-400">•</span>
+        <a href="/ochrana-osobnich-udaju/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Soukromí</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // rok
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // dark mode
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const toggleMobile = document.getElementById('themeToggleMobile');
+    const toggleMobileIcon = document.getElementById('themeToggleMobileIcon');
+    const iconSun = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+    const iconSunM = document.getElementById('iconSunM');
+    const iconMoonM = document.getElementById('iconMoonM');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function setTheme(mode){
+      const isDark = mode === 'dark';
+      root.classList.toggle('dark', isDark);
+      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch(e) {}
+      if (iconSun && iconMoon) {
+        iconSun.classList.toggle('hidden', !isDark);
+        iconMoon.classList.toggle('hidden', isDark);
+      }
+      if (iconSunM && iconMoonM) {
+        iconSunM.classList.toggle('hidden', !isDark);
+        iconMoonM.classList.toggle('hidden', isDark);
+      }
+      if (themeLabel) themeLabel.textContent = isDark ? 'Tmavý' : 'Světlý';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isDark ? '#0b3a1e' : '#166534');
+    }
+
+    const saved = (() => { try { return localStorage.getItem('theme'); } catch(e) { return null; } })();
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(saved ? saved : (prefersDark ? 'dark' : 'light'));
+
+    function toggleTheme(){ setTheme(root.classList.contains('dark') ? 'light' : 'dark'); }
+    if (toggle) toggle.addEventListener('click', toggleTheme);
+    if (toggleMobile) toggleMobile.addEventListener('click', toggleTheme);
+    if (toggleMobileIcon) toggleMobileIcon.addEventListener('click', toggleTheme);
+
+    // mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const mobilePanel = document.getElementById('mobilePanel');
+    const drawer = mobilePanel.querySelector('div');
+    const iconOpen = document.getElementById('menuIconOpen');
+    const iconClose = document.getElementById('menuIconClose');
+
+    function openMenu() {
+      mobilePanel.classList.remove('pointer-events-none', 'opacity-0');
+      drawer.classList.remove('translate-x-full');
+      iconOpen.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      mobilePanel.classList.add('opacity-0');
+      drawer.classList.add('translate-x-full');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      setTimeout(()=> mobilePanel.classList.add('pointer-events-none'), 300);
+    }
+
+    menuBtn.addEventListener('click', () => {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      if (expanded) closeMenu(); else {
+        mobilePanel.classList.remove('opacity-0');
+        mobilePanel.classList.remove('pointer-events-none');
+        setTimeout(openMenu, 10);
+      }
+    });
+
+    mobilePanel.addEventListener('click', (e) => { if (e.target === mobilePanel) closeMenu(); });
+    mobilePanel.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
+    window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+
+    // katalog data (MVP)
+    const FIRMS = [
+      {
+        id: 1,
+        name: 'AgroServis Morava',
+        slug: 'agroservis-morava',
+        kat: ['stroje'],
+        kraj: 'Zlínský',
+        okres: 'Uherské Hradiště',
+        verified: true,
+        rating: 4.7,
+        tags: ['servis','prodej','montaz'],
+        about: 'Servis a prodej zemědělské techniky, rychlé výjezdy, originální díly.'
+      },
+      {
+        id: 2,
+        name: 'GreenSeed CZ',
+        slug: 'greenseed-cz',
+        kat: ['osiva'],
+        kraj: 'Jihomoravský',
+        okres: 'Hodonín',
+        verified: false,
+        rating: 4.4,
+        tags: ['prodej','poradenstvi'],
+        about: 'Osiva a hnojiva, poradenství k výnosům, doprava po celé ČR.'
+      },
+      {
+        id: 3,
+        name: 'HydroAgro Tech',
+        slug: 'hydroagro-tech',
+        kat: ['iot'],
+        kraj: 'Olomoucký',
+        okres: 'Olomouc',
+        verified: true,
+        rating: 4.8,
+        tags: ['montaz','servis','poradenstvi'],
+        about: 'Kapková závlaha, senzory vláhy, monitoring a automatizace.'
+      },
+      {
+        id: 4,
+        name: 'VetFarm Care',
+        slug: 'vetfarm-care',
+        kat: ['chov'],
+        kraj: 'Moravskoslezský',
+        okres: 'Opava',
+        verified: true,
+        rating: 4.6,
+        tags: ['poradenstvi'],
+        about: 'Veterinární péče a programy zdraví stáda, výjezdy do 24h.'
+      },
+      {
+        id: 5,
+        name: 'AgroLeasing Partner',
+        slug: 'agroleasing-partner',
+        kat: ['stroje'],
+        kraj: 'Praha',
+        okres: 'Praha',
+        verified: false,
+        rating: 4.2,
+        tags: ['leasing','poradenstvi'],
+        about: 'Financování zemědělské techniky: leasing, úvěr, pojištění.'
+      },
+      {
+        id: 6,
+        name: 'BioFert Plus',
+        slug: 'biofert-plus',
+        kat: ['osiva'],
+        kraj: 'Středočeský',
+        okres: 'Mladá Boleslav',
+        verified: true,
+        rating: 4.5,
+        tags: ['prodej'],
+        about: 'Organická hnojiva, půdní kondicionéry, velkoobjemová dodávka.'
+      }
+    ];
+
+    const els = {
+      q: document.getElementById('q'),
+      kraj: document.getElementById('kraj'),
+      kat: document.getElementById('kat'),
+      verified: document.getElementById('verified'),
+      sort: document.getElementById('sort'),
+      list: document.getElementById('list'),
+      count: document.getElementById('count'),
+      chips: document.getElementById('chips'),
+      resetBtn: document.getElementById('resetBtn'),
+      prev: document.getElementById('prev'),
+      next: document.getElementById('next'),
+      page: document.getElementById('page'),
+      pages: document.getElementById('pages')
+    };
+
+    let page = 1;
+    const PAGE_SIZE = 9;
+
+    function normalize(s){ return (s||'').toString().toLowerCase().trim(); }
+
+    function getSelectedSvcs(){
+      return Array.from(document.querySelectorAll('input.svc:checked')).map(i => i.value);
+    }
+
+    function buildChips(state){
+      const chips = [];
+      if (state.q) chips.push({ key:'q', label:`Hledat: ${state.q}` });
+      if (state.kraj) chips.push({ key:'kraj', label:`Kraj: ${state.kraj}` });
+      if (state.kat) chips.push({ key:'kat', label:`Kategorie: ${state.katLabel}` });
+      state.svcs.forEach(s => chips.push({ key:`svc:${s}`, label:`Služba: ${s}` }));
+      if (state.verified) chips.push({ key:'verified', label:'Ověřené' });
+
+      els.chips.innerHTML = '';
+      chips.forEach(ch => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm hover:border-agro-green';
+        b.innerHTML = `<span>${ch.label}</span><span class="text-slate-500">×</span>`;
+        b.addEventListener('click', () => removeChip(ch.key));
+        els.chips.appendChild(b);
+      });
+    }
+
+    function removeChip(key){
+      if (key === 'q') els.q.value = '';
+      else if (key === 'kraj') els.kraj.value = '';
+      else if (key === 'kat') els.kat.value = '';
+      else if (key === 'verified') els.verified.checked = false;
+      else if (key.startsWith('svc:')) {
+        const v = key.split(':')[1];
+        const cb = Array.from(document.querySelectorAll('input.svc')).find(i => i.value === v);
+        if (cb) cb.checked = false;
+      }
+      page = 1;
+      render();
+    }
+
+    function reset(){
+      els.q.value = '';
+      els.kraj.value = '';
+      els.kat.value = '';
+      els.verified.checked = false;
+      document.querySelectorAll('input.svc').forEach(i => i.checked = false);
+      els.sort.value = 'relevance';
+      page = 1;
+      render();
+    }
+
+    function firmCard(f){
+      const badges = [
+        f.verified ? '<span class="px-2 py-1 rounded-lg text-xs bg-agro-green/10 text-agro-green">Ověřeno</span>' : '',
+        `<span class="px-2 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">★ ${f.rating.toFixed(1)}</span>`
+      ].filter(Boolean).join('');
+
+      const tagMap = { servis:'Servis', prodej:'Prodej', leasing:'Leasing', poradenstvi:'Poradenství', montaz:'Montáž' };
+      const tags = f.tags.slice(0,3).map(t => `<span class="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800">${tagMap[t]||t}</span>`).join('');
+
+      return `
+        <a href="/firma/${f.slug}/" class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-soft transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="font-bold leading-snug group-hover:text-agro-green">${f.name}</div>
+              <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">${f.okres} • ${f.kraj}</div>
+            </div>
+            <div class="flex flex-col items-end gap-2">${badges}</div>
+          </div>
+          <p class="mt-3 text-sm text-slate-600 dark:text-slate-300 line-clamp-3">${f.about}</p>
+          <div class="mt-4 flex flex-wrap gap-2">${tags}</div>
+          <div class="mt-4 text-sm text-agro-green hidden group-hover:block">Otevřít profil →</div>
+        </a>
+      `;
+    }
+
+    function render(){
+      const state = {
+        q: normalize(els.q.value),
+        kraj: els.kraj.value,
+        kat: els.kat.value,
+        katLabel: els.kat.options[els.kat.selectedIndex]?.textContent || '',
+        verified: els.verified.checked,
+        svcs: getSelectedSvcs(),
+        sort: els.sort.value
+      };
+
+      let rows = FIRMS.slice();
+
+      // filters
+      if (state.q) {
+        rows = rows.filter(f => {
+          const hay = normalize(f.name) + ' ' + normalize(f.about) + ' ' + normalize(f.okres) + ' ' + normalize(f.kraj) + ' ' + f.tags.join(' ');
+          return hay.includes(state.q);
+        });
+      }
+      if (state.kraj) rows = rows.filter(f => f.kraj === state.kraj);
+      if (state.kat) rows = rows.filter(f => f.kat.includes(state.kat));
+      if (state.verified) rows = rows.filter(f => f.verified);
+      if (state.svcs.length) rows = rows.filter(f => state.svcs.every(s => f.tags.includes(s)));
+
+      // sort
+      if (state.sort === 'rating') rows.sort((a,b) => b.rating - a.rating);
+      if (state.sort === 'name') rows.sort((a,b) => a.name.localeCompare(b.name, 'cs'));
+      if (state.sort === 'relevance') {
+        // jednoduché: ověřené + rating
+        rows.sort((a,b) => (Number(b.verified)-Number(a.verified)) || (b.rating-a.rating));
+      }
+
+      // pagination
+      const total = rows.length;
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(page, totalPages);
+      const start = (page-1)*PAGE_SIZE;
+      const pageRows = rows.slice(start, start+PAGE_SIZE);
+
+      // ui
+      els.count.textContent = String(total);
+      els.page.textContent = String(page);
+      els.pages.textContent = String(totalPages);
+      els.prev.disabled = page <= 1;
+      els.next.disabled = page >= totalPages;
+      els.prev.classList.toggle('opacity-50', els.prev.disabled);
+      els.next.classList.toggle('opacity-50', els.next.disabled);
+
+      buildChips(state);
+
+      els.list.innerHTML = pageRows.map(firmCard).join('') || `
+        <div class="sm:col-span-2 xl:col-span-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+          <div class="font-bold">Nic jsme nenašli</div>
+          <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">Zkus upravit filtry nebo vyhledávání.</div>
+        </div>
+      `;
+    }
+
+    // events
+    els.resetBtn.addEventListener('click', reset);
+    ['input','change'].forEach(ev => {
+      els.q.addEventListener(ev, () => { page=1; render(); });
+      els.kraj.addEventListener(ev, () => { page=1; render(); });
+      els.kat.addEventListener(ev, () => { page=1; render(); });
+      els.verified.addEventListener(ev, () => { page=1; render(); });
+      els.sort.addEventListener(ev, () => { page=1; render(); });
+      document.querySelectorAll('input.svc').forEach(i => i.addEventListener(ev, () => { page=1; render(); }));
+    });
+
+    els.q.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { els.q.value=''; page=1; render(); els.q.blur(); }
+    });
+
+    els.prev.addEventListener('click', () => { if (page>1) { page--; render(); window.scrollTo({top:0, behavior:'smooth'}); } });
+    els.next.addEventListener('click', () => { page++; render(); window.scrollTo({top:0, behavior:'smooth'}); });
+
+    // init
+    render();
+  </script>
+</body>
+</html>

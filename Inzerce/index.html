@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inzerce – Agroa.cz</title>
+  <meta name="description" content="Inzerce a agrobazar – stroje, technika, zvířata a vybavení pro zemědělství." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://agroa.cz/inzerce/" />
+  <meta name="theme-color" content="#166534" />
+
+  <!-- Dark mode: bez bliknutí -->
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDark = saved ? saved === 'dark' : prefersDark;
+        if (useDark) document.documentElement.classList.add('dark');
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Google Fonts (CZ) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Roboto', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            agro: {
+              green: '#166534',
+              light: '#eaf7ee',
+              dark: '#0b3a1e',
+              accent: '#8BC34A'
+            }
+          },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,.08)' }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="font-sans text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-xl focus:bg-white dark:focus:bg-slate-900 focus:shadow-soft focus:border focus:border-slate-200 dark:focus:border-slate-800">Přeskočit na obsah</a>
+
+  <!-- Header (stejný jako katalog) -->
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Agroa logo" role="img">
+            <defs>
+              <linearGradient id="agroGradientInz" x1="6" y1="8" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#166534"/>
+                <stop offset="1" stop-color="#0b3a1e"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#agroGradientInz)"/>
+            <path d="M14 40H50" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M18 44c6-3 10-4 14-4s8 1 14 4" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M20 50c5-2.5 8-3.2 12-3.2s7 .7 12 3.2" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M32 18c-4.8 0-8.6 3.4-9.6 8.2 5.5.8 9.7-1.1 9.6-8.2Z" fill="#8BC34A"/>
+            <path d="M32 18c4.8 0 8.6 3.4 9.6 8.2-5.5.8-9.7-1.1-9.6-8.2Z" fill="#B7F36A" opacity=".95"/>
+            <path d="M32 26v12" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="leading-tight">
+            <div class="font-black text-lg tracking-tight">Agroa.cz</div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 -mt-0.5">Inzerce</div>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-4 font-medium">
+          <a href="/katalog/" class="hover:text-agro-green">Katalog</a>
+          <a href="/inzerce/" class="text-agro-green">Inzerce</a>
+          <a href="/#dotace" class="hover:text-agro-green">Dotace</a>
+          <a href="/#magazin" class="hover:text-agro-green">Magazín</a>
+          <a href="/#kontakt" class="hover:text-agro-green">Kontakt</a>
+
+          <button id="themeToggle" type="button" class="ml-2 inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSun" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoon" aria-hidden="true">🌙</span>
+          </button>
+
+          <a href="#pridat" class="ml-2 px-4 py-2 rounded-xl bg-agro-green text-white hover:bg-agro-dark transition shadow-soft">Přidat inzerát</a>
+        </nav>
+
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Otevřít menu" aria-expanded="false">
+          <svg id="menuIconOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          <svg id="menuIconClose" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile panel -->
+    <div id="mobilePanel" class="md:hidden fixed inset-0 z-40 bg-black/40 opacity-0 pointer-events-none transition-opacity">
+      <div class="absolute right-0 top-0 h-full w-80 max-w-[85%] bg-white dark:bg-slate-950 shadow-2xl translate-x-full transition-transform p-6 flex flex-col gap-4 border-l border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between -mt-1">
+          <div class="text-sm font-bold">Menu</div>
+          <button id="themeToggleMobileIcon" type="button" class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+            <span id="iconSunM" class="hidden" aria-hidden="true">☀️</span>
+            <span id="iconMoonM" aria-hidden="true">🌙</span>
+          </button>
+        </div>
+
+        <a href="/katalog/" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📚 Katalog</a>
+        <a href="/inzerce/" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>🧾 Inzerce</a>
+        <a href="#pridat" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>➕ Přidat inzerát</a>
+        <a href="/#kontakt" class="py-2 border-b border-slate-200 dark:border-slate-800" data-close>📨 Kontakt</a>
+
+        <button id="themeToggleMobile" type="button" class="mt-auto inline-flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900" aria-label="Přepnout režim (světlý / tmavý)">
+          <span class="font-medium">Režim</span>
+          <span id="themeLabel" class="text-sm text-slate-600 dark:text-slate-300">Světlý</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="bg-agro-light/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+          <div>
+            <div class="text-sm text-slate-600 dark:text-slate-300">Agrobazar • Stroje • Technika • Vybavení</div>
+            <h1 class="mt-2 text-3xl sm:text-4xl font-black tracking-tight">Inzerce</h1>
+            <p class="mt-2 text-slate-700 dark:text-slate-200">Filtruj inzeráty podle kategorie, kraje a ceny. Klikem otevřeš detail.</p>
+          </div>
+          <div>
+            <div class="text-sm text-slate-600 dark:text-slate-300">Nalezeno: <span id="count" class="font-bold text-slate-900 dark:text-slate-100">0</span> inzerátů</div>
+            <div id="loadNote" class="mt-1 text-xs text-slate-500 dark:text-slate-400"></div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-5">
+            <label class="text-sm font-medium">Hledat</label>
+            <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Např. John Deere, kombajn, vlečka…" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" />
+            <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">Tip: ESC vymaže hledání</div>
+          </div>
+          <div class="lg:col-span-3">
+            <label class="text-sm font-medium">Kategorie</label>
+            <select id="cat" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+              <option value="">Vše</option>
+              <option value="stroje">Stroje & technika</option>
+              <option value="nahradni-dily">Náhradní díly</option>
+              <option value="prislusenstvi">Příslušenství</option>
+              <option value="zvirata">Zvířata</option>
+              <option value="ostatni">Ostatní</option>
+            </select>
+          </div>
+          <div class="lg:col-span-4">
+            <label class="text-sm font-medium">Kraj</label>
+            <select id="kraj" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+              <option value="">Vše</option>
+              <option>Praha</option>
+              <option>Středočeský</option>
+              <option>Jihočeský</option>
+              <option>Plzeňský</option>
+              <option>Karlovarský</option>
+              <option>Ústecký</option>
+              <option>Liberecký</option>
+              <option>Královéhradecký</option>
+              <option>Pardubický</option>
+              <option>Vysočina</option>
+              <option>Jihomoravský</option>
+              <option>Olomoucký</option>
+              <option>Zlínský</option>
+              <option>Moravskoslezský</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-4">
+            <label class="text-sm font-medium">Cena od (Kč)</label>
+            <input id="min" type="number" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="0" />
+          </div>
+          <div class="lg:col-span-4">
+            <label class="text-sm font-medium">Cena do (Kč)</label>
+            <input id="max" type="number" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" placeholder="9999999" />
+          </div>
+          <div class="lg:col-span-4">
+            <label class="text-sm font-medium">Řazení</label>
+            <select id="sort" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30">
+              <option value="relevance">Doporučené</option>
+              <option value="price_asc">Cena: od nejlevnější</option>
+              <option value="price_desc">Cena: od nejdražší</option>
+              <option value="new">Nejnovější</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="btnClear" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green" type="button">Vymazat filtry</button>
+          <span class="text-xs text-slate-500 dark:text-slate-400 self-center">Klikni na inzerát pro detail.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- List -->
+    <section class="py-10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div id="chips" class="flex flex-wrap gap-2"></div>
+
+        <div id="list" class="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+        <div class="mt-8 flex items-center justify-between">
+          <button id="prev" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green" type="button">← Předchozí</button>
+          <div class="text-sm text-slate-600 dark:text-slate-300">Strana <span id="page" class="font-bold">1</span> / <span id="pages" class="font-bold">1</span></div>
+          <button id="next" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-agro-green hover:text-agro-green" type="button">Další →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Přidat inzerát (placeholder) -->
+    <section id="pridat" class="py-10 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+          <div class="text-xl font-black">Přidat inzerát</div>
+          <p class="mt-2 text-slate-600 dark:text-slate-300">Sem dáme formulář. Teď je důležité, že výpis inzerátů funguje s DEMO + Supabase.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-10 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <svg class="w-9 h-9" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="agroGradientInzFooter" x1="6" y1="8" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#166534"/>
+              <stop offset="1" stop-color="#0b3a1e"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#agroGradientInzFooter)"/>
+          <path d="M14 40H50" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M18 44c6-3 10-4 14-4s8 1 14 4" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 50c5-2.5 8-3.2 12-3.2s7 .7 12 3.2" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 18c-4.8 0-8.6 3.4-9.6 8.2 5.5.8 9.7-1.1 9.6-8.2Z" fill="#8BC34A"/>
+          <path d="M32 18c4.8 0 8.6 3.4 9.6 8.2-5.5.8-9.7-1.1-9.6-8.2Z" fill="#B7F36A" opacity=".95"/>
+          <path d="M32 26v12" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div class="text-sm text-slate-600 dark:text-slate-300">© <span id="year"></span> Agroa.cz</div>
+      </div>
+      <div class="text-sm">
+        <a href="/obchodni-podminky/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Podmínky</a>
+        <span class="mx-2 text-slate-400">•</span>
+        <a href="/ochrana-osobnich-udaju/" class="text-slate-600 dark:text-slate-300 hover:text-agro-green">Soukromí</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // rok
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // dark mode
+    const root = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
+    const toggleMobile = document.getElementById('themeToggleMobile');
+    const toggleMobileIcon = document.getElementById('themeToggleMobileIcon');
+    const iconSun = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+    const iconSunM = document.getElementById('iconSunM');
+    const iconMoonM = document.getElementById('iconMoonM');
+    const themeLabel = document.getElementById('themeLabel');
+
+    function setTheme(mode){
+      const isDark = mode === 'dark';
+      root.classList.toggle('dark', isDark);
+      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch(e) {}
+      if (iconSun && iconMoon) {
+        iconSun.classList.toggle('hidden', !isDark);
+        iconMoon.classList.toggle('hidden', isDark);
+      }
+      if (iconSunM && iconMoonM) {
+        iconSunM.classList.toggle('hidden', !isDark);
+        iconMoonM.classList.toggle('hidden', isDark);
+      }
+      if (themeLabel) themeLabel.textContent = isDark ? 'Tmavý' : 'Světlý';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isDark ? '#0b3a1e' : '#166534');
+    }
+
+    const saved = (() => { try { return localStorage.getItem('theme'); } catch(e) { return null; } })();
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(saved ? saved : (prefersDark ? 'dark' : 'light'));
+
+    function toggleTheme(){ setTheme(root.classList.contains('dark') ? 'light' : 'dark'); }
+    if (toggle) toggle.addEventListener('click', toggleTheme);
+    if (toggleMobile) toggleMobile.addEventListener('click', toggleTheme);
+    if (toggleMobileIcon) toggleMobileIcon.addEventListener('click', toggleTheme);
+
+    // mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const mobilePanel = document.getElementById('mobilePanel');
+    const drawer = mobilePanel.querySelector('div');
+    const iconOpen = document.getElementById('menuIconOpen');
+    const iconClose = document.getElementById('menuIconClose');
+
+    function openMenu() {
+      mobilePanel.classList.remove('pointer-events-none', 'opacity-0');
+      drawer.classList.remove('translate-x-full');
+      iconOpen.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      mobilePanel.classList.add('opacity-0');
+      drawer.classList.add('translate-x-full');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      setTimeout(()=> mobilePanel.classList.add('pointer-events-none'), 300);
+    }
+
+    menuBtn.addEventListener('click', () => {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      if (expanded) closeMenu(); else {
+        mobilePanel.classList.remove('opacity-0');
+        mobilePanel.classList.remove('pointer-events-none');
+        setTimeout(openMenu, 10);
+      }
+    });
+
+    mobilePanel.addEventListener('click', (e) => { if (e.target === mobilePanel) closeMenu(); });
+    mobilePanel.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMenu));
+    window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+
+    // Supabase + demo
+    const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE';
+    const SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY_HERE';
+    const hasSupabase = SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.startsWith('ey');
+    const sb = hasSupabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    const DEMO = [
+      {
+        id: 1,
+        title: 'John Deere 6155M',
+        price: 1250000,
+        slug: 'john-deere-6155m',
+        category: 'stroje',
+        kraj: 'Zlínský',
+        location: 'Uherské Hradiště',
+        condition: 'Použité',
+        year: 2019,
+        photos: ['https://images.unsplash.com/photo-1514996937319-344454492b37?q=80&w=1400&auto=format&fit=crop']
+      },
+      {
+        id: 2,
+        title: 'Kombajn Claas Lexion',
+        price: 2890000,
+        slug: 'claas-lexion',
+        category: 'stroje',
+        kraj: 'Jihomoravský',
+        location: 'Hodonín',
+        condition: 'Použité',
+        year: 2016,
+        photos: ['https://images.unsplash.com/photo-1566939118327-0f2ad0f6b9b0?q=80&w=1400&auto=format&fit=crop']
+      },
+      {
+        id: 3,
+        title: 'Secí stroj Väderstad',
+        price: 890000,
+        slug: 'vaderstad-seci-stroj',
+        category: 'prislusenstvi',
+        kraj: 'Olomoucký',
+        location: 'Olomouc',
+        condition: 'Nové',
+        year: 2024,
+        photos: ['https://images.unsplash.com/photo-1557429287-b2e26467fc2b?q=80&w=1400&auto=format&fit=crop']
+      },
+      {
+        id: 4,
+        title: 'Sada filtrů – originál',
+        price: 12900,
+        slug: 'sada-filtru-original',
+        category: 'nahradni-dily',
+        kraj: 'Středočeský',
+        location: 'Mladá Boleslav',
+        condition: 'Nové',
+        year: 2025,
+        photos: ['https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1400&auto=format&fit=crop']
+      },
+      {
+        id: 5,
+        title: 'Telata – charolais (10 ks)',
+        price: 240000,
+        slug: 'telata-charolais-10',
+        category: 'zvirata',
+        kraj: 'Moravskoslezský',
+        location: 'Opava',
+        condition: '—',
+        year: 2025,
+        photos: ['https://images.unsplash.com/photo-1546447147-3fc2c4f7b6fd?q=80&w=1400&auto=format&fit=crop']
+      },
+      {
+        id: 6,
+        title: 'Vlečka 8t – repas',
+        price: 199000,
+        slug: 'vlecka-8t-repas',
+        category: 'stroje',
+        kraj: 'Vysočina',
+        location: 'Jihlava',
+        condition: 'Použité',
+        year: 2012,
+        photos: ['https://images.unsplash.com/photo-1500595046743-cd271d694d30?q=80&w=1400&auto=format&fit=crop']
+      }
+    ];
+
+    let DATA = DEMO.slice();
+
+    const els = {
+      loadNote: document.getElementById('loadNote'),
+      count: document.getElementById('count'),
+      q: document.getElementById('q'),
+      cat: document.getElementById('cat'),
+      kraj: document.getElementById('kraj'),
+      min: document.getElementById('min'),
+      max: document.getElementById('max'),
+      sort: document.getElementById('sort'),
+      btnClear: document.getElementById('btnClear'),
+      chips: document.getElementById('chips'),
+      list: document.getElementById('list'),
+      prev: document.getElementById('prev'),
+      next: document.getElementById('next'),
+      page: document.getElementById('page'),
+      pages: document.getElementById('pages')
+    };
+
+    let page = 1;
+    const PAGE_SIZE = 9;
+
+    function n(s){ return (s||'').toString().toLowerCase().trim(); }
+
+    function formatPrice(v){
+      const num = Number(v);
+      if (!Number.isFinite(num)) return '—';
+      return num.toLocaleString('cs-CZ') + ' Kč';
+    }
+
+    function catLabel(v){
+      const m = {
+        'stroje': 'Stroje & technika',
+        'nahradni-dily': 'Náhradní díly',
+        'prislusenstvi': 'Příslušenství',
+        'zvirata': 'Zvířata',
+        'ostatni': 'Ostatní'
+      };
+      return m[v] || v || '';
+    }
+
+    function buildChips(state){
+      const chips = [];
+      if (state.q) chips.push({ key:'q', label:`Hledat: ${state.q}` });
+      if (state.cat) chips.push({ key:'cat', label:`Kategorie: ${catLabel(state.cat)}` });
+      if (state.kraj) chips.push({ key:'kraj', label:`Kraj: ${state.kraj}` });
+      if (state.min) chips.push({ key:'min', label:`Od: ${formatPrice(state.min)}` });
+      if (state.max) chips.push({ key:'max', label:`Do: ${formatPrice(state.max)}` });
+
+      els.chips.innerHTML = '';
+      chips.forEach(ch => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm hover:border-agro-green';
+        b.innerHTML = `<span>${ch.label}</span><span class="text-slate-500">×</span>`;
+        b.addEventListener('click', () => removeChip(ch.key));
+        els.chips.appendChild(b);
+      });
+    }
+
+    function removeChip(key){
+      if (key === 'q') els.q.value = '';
+      if (key === 'cat') els.cat.value = '';
+      if (key === 'kraj') els.kraj.value = '';
+      if (key === 'min') els.min.value = '';
+      if (key === 'max') els.max.value = '';
+      page = 1;
+      render();
+    }
+
+    function clearFilters(){
+      els.q.value = '';
+      els.cat.value = '';
+      els.kraj.value = '';
+      els.min.value = '';
+      els.max.value = '';
+      els.sort.value = 'relevance';
+      page = 1;
+      render();
+    }
+
+    function card(a){
+      const cover = (a.photos && a.photos[0]) ? a.photos[0] : '';
+      const meta = [a.location, a.kraj].filter(Boolean).join(' • ');
+      const chips = [
+        a.condition ? `<span class="px-2 py-1 rounded-lg text-xs border border-slate-200 dark:border-slate-800">${a.condition}</span>` : '',
+        a.year ? `<span class="px-2 py-1 rounded-lg text-xs border border-slate-200 dark:border-slate-800">${a.year}</span>` : '',
+        a.category ? `<span class="px-2 py-1 rounded-lg text-xs bg-agro-green/10 text-agro-green">${catLabel(a.category)}</span>` : ''
+      ].filter(Boolean).join('');
+
+      return `
+        <a href="/inzerat/?slug=${encodeURIComponent(a.slug)}" class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden hover:shadow-soft transition">
+          <div class="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800">
+            ${cover ? `<img src="${cover}" alt="${a.title}" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />` : ''}
+            <div class="absolute inset-0 hidden dark:block bg-black/20"></div>
+            <div class="absolute top-3 left-3 flex flex-wrap gap-2">${chips}</div>
+          </div>
+          <div class="p-5">
+            <div class="font-black leading-snug group-hover:text-agro-green">${a.title}</div>
+            <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">${meta || '—'}</div>
+            <div class="mt-3 text-lg font-black">${formatPrice(a.price)}</div>
+            <div class="mt-4 text-sm text-agro-green hidden group-hover:block">Zobrazit detail →</div>
+          </div>
+        </a>
+      `;
+    }
+
+    function render(){
+      const state = {
+        q: n(els.q.value),
+        cat: els.cat.value,
+        kraj: els.kraj.value,
+        min: els.min.value ? Number(els.min.value) : null,
+        max: els.max.value ? Number(els.max.value) : null,
+        sort: els.sort.value
+      };
+
+      let rows = DATA.slice();
+
+      // filters
+      if (state.q) rows = rows.filter(a => n(a.title).includes(state.q) || n(a.location).includes(state.q) || n(a.kraj).includes(state.q));
+      if (state.cat) rows = rows.filter(a => a.category === state.cat);
+      if (state.kraj) rows = rows.filter(a => a.kraj === state.kraj);
+      if (state.min != null) rows = rows.filter(a => Number(a.price) >= state.min);
+      if (state.max != null) rows = rows.filter(a => Number(a.price) <= state.max);
+
+      // sort
+      if (state.sort === 'price_asc') rows.sort((a,b) => Number(a.price) - Number(b.price));
+      if (state.sort === 'price_desc') rows.sort((a,b) => Number(b.price) - Number(a.price));
+      if (state.sort === 'new') rows.sort((a,b) => (String(b.created_at||'').localeCompare(String(a.created_at||''))));
+      if (state.sort === 'relevance') {
+        // jednoduché: dražší stroje nejsou "lepší", proto jen stabilně
+      }
+
+      // pagination
+      const total = rows.length;
+      const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(page, totalPages);
+      const start = (page-1)*PAGE_SIZE;
+      const pageRows = rows.slice(start, start+PAGE_SIZE);
+
+      els.count.textContent = String(total);
+      els.page.textContent = String(page);
+      els.pages.textContent = String(totalPages);
+      els.prev.disabled = page <= 1;
+      els.next.disabled = page >= totalPages;
+      els.prev.classList.toggle('opacity-50', els.prev.disabled);
+      els.next.classList.toggle('opacity-50', els.next.disabled);
+
+      buildChips(state);
+
+      els.list.innerHTML = pageRows.map(card).join('') || `
+        <div class="sm:col-span-2 lg:col-span-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+          <div class="font-bold">Nic jsme nenašli</div>
+          <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">Zkus upravit filtry nebo hledání.</div>
+        </div>
+      `;
+    }
+
+    // events
+    els.btnClear.addEventListener('click', clearFilters);
+    ['input','change'].forEach(ev => {
+      els.q.addEventListener(ev, () => { page = 1; render(); });
+      els.cat.addEventListener(ev, () => { page = 1; render(); });
+      els.kraj.addEventListener(ev, () => { page = 1; render(); });
+      els.min.addEventListener(ev, () => { page = 1; render(); });
+      els.max.addEventListener(ev, () => { page = 1; render(); });
+      els.sort.addEventListener(ev, () => { page = 1; render(); });
+    });
+
+    els.q.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { els.q.value = ''; page = 1; render(); els.q.blur(); }
+    });
+
+    els.prev.addEventListener('click', () => { if (page > 1) { page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+    els.next.addEventListener('click', () => { page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+    async function loadFromSupabase(){
+      if (!sb) {
+        if (els.loadNote) els.loadNote.textContent = 'Demo režim: doplň SUPABASE_URL a SUPABASE_ANON_KEY a bude to živé.';
+        return null;
+      }
+
+      // tabulka: ads
+      // min: id, title, slug, price, category, kraj, location, condition, year, photos(json/text[]), created_at
+      const res = await sb
+        .from('ads')
+        .select('id,title,slug,price,category,kraj,location,condition,year,photos,created_at')
+        .order('created_at', { ascending: false })
+        .limit(500);
+
+      if (res.error) throw res.error;
+      const rows = res.data || [];
+      return rows.map(a => ({
+        id: a.id,
+        title: a.title,
+        slug: a.slug,
+        price: a.price,
+        category: a.category,
+        kraj: a.kraj,
+        location: a.location,
+        condition: a.condition,
+        year: a.year,
+        photos: Array.isArray(a.photos) ? a.photos : (a.photos ? [a.photos] : []),
+        created_at: a.created_at
+      }));
+    }
+
+    (async function init(){
+      try {
+        const live = await loadFromSupabase();
+        if (live && live.length) {
+          DATA = live;
+          if (els.loadNote) els.loadNote.textContent = 'Načteno ze Supabase (' + live.length + ' inzerátů).';
+        }
+      } catch (e) {
+        console.error(e);
+        if (els.loadNote) els.loadNote.textContent = 'Chyba Supabase – zobrazuji demo data. (Zkontroluj RLS a klíče)';
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>

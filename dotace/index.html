@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dotace – Agroa.cz</title>
+  <meta name="description" content="Přehled aktuálních dotačních výzev pro zemědělce. Termíny, podmínky, míra podpory a možnost konzultace." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://agroa.cz/dotace/" />
+  <meta name="theme-color" content="#166534" />
+
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDark = saved ? saved === 'dark' : prefersDark;
+        if (useDark) document.documentElement.classList.add('dark');
+      } catch(e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Roboto','ui-sans-serif','system-ui'] },
+          colors: {
+            agro: {
+              green:'#166534',
+              light:'#eaf7ee',
+              dark:'#0b3a1e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans text-slate-900 bg-white dark:bg-slate-950 dark:text-slate-100">
+
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href="/" class="font-black text-lg">Agroa.cz</a>
+    <nav class="hidden md:flex gap-5 font-medium">
+      <a href="/katalog/" class="hover:text-agro-green">Katalog</a>
+      <a href="/inzerce/" class="hover:text-agro-green">Inzerce</a>
+      <a href="/sluzby/" class="hover:text-agro-green">Služby</a>
+      <a href="/dotace/" class="text-agro-green">Dotace</a>
+      <a href="/magazin/" class="hover:text-agro-green">Magazín</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="py-16 bg-agro-light/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-black tracking-tight">Aktuální dotační výzvy</h1>
+    <p class="mt-3 text-slate-600 dark:text-slate-300 max-w-2xl">Přehled otevřených výzev pro zemědělce a agropodniky. Pomůžeme s analýzou, podáním žádosti i administrací.</p>
+  </div>
+</section>
+
+<section class="py-14">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-3 gap-6">
+
+    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+      <div class="text-xs font-medium text-agro-green">PRV • do 12. 12. 2025</div>
+      <h3 class="mt-2 font-black text-lg">Investice do zemědělských podniků</h3>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Podpora nákupu techniky, modernizace provozu, stavebních úprav. Míra podpory až 50 %.</p>
+      <div class="mt-4 text-sm">✔ Technika a technologie<br>✔ Modernizace farem<br>✔ Zvýšení konkurenceschopnosti</div>
+      <a href="#konzultace" class="mt-5 inline-block text-agro-green font-semibold">Chci konzultaci →</a>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+      <div class="text-xs font-medium text-agro-green">OP TAK • do 30. 11. 2025</div>
+      <h3 class="mt-2 font-black text-lg">Digitální transformace</h3>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Senzory, datové platformy, automatizace procesů a digitalizace provozu.</p>
+      <div class="mt-4 text-sm">✔ IoT systémy<br>✔ Automatizace výroby<br>✔ Datové analýzy</div>
+      <a href="#konzultace" class="mt-5 inline-block text-agro-green font-semibold">Zjistit více →</a>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+      <div class="text-xs font-medium text-agro-green">SFŽP • průběžně</div>
+      <h3 class="mt-2 font-black text-lg">Voda v krajině</h3>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Retenční nádrže, závlahové systémy, hospodaření s vodou.</p>
+      <div class="mt-4 text-sm">✔ Závlahy<br>✔ Monitoring vláhy<br>✔ Retence vody</div>
+      <a href="#konzultace" class="mt-5 inline-block text-agro-green font-semibold">Mám zájem →</a>
+    </div>
+
+  </div>
+</section>
+
+<section id="konzultace" class="py-16 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-black tracking-tight">Nezávazná konzultace k dotacím</h2>
+    <p class="mt-2 text-slate-600 dark:text-slate-300">Pošlete základní informace a ozveme se s doporučením vhodné výzvy.</p>
+
+    <form class="mt-6 space-y-4" onsubmit="event.preventDefault(); alert('Děkujeme! Ozveme se.'); this.reset();">
+      <div>
+        <label class="text-sm font-medium">Jméno *</label>
+        <input required class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" />
+      </div>
+      <div>
+        <label class="text-sm font-medium">E‑mail *</label>
+        <input type="email" required class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30" />
+      </div>
+      <div>
+        <label class="text-sm font-medium">Stručný popis projektu *</label>
+        <textarea required rows="4" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-agro-green/30"></textarea>
+      </div>
+      <button type="submit" class="px-6 py-3 rounded-xl bg-agro-green text-white hover:bg-agro-dark shadow-soft">Odeslat</button>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<footer class="py-10 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-center text-sm text-slate-600 dark:text-slate-300">
+  © <script>document.write(new Date().getFullYear())</script> Agroa.cz
+</footer>
+
+</body>
+</html>
